@@ -21,6 +21,7 @@ async function run() {
     await client.connect();
     console.log("DB Connected");
     const travelCollection = client.db("travelovisor").collection("travel");
+    const userCollection = client.db("travelovisor").collection("user");
 
     app.get("/travel", async (req, res) => {
       const users = await travelCollection.find().toArray();
@@ -32,6 +33,25 @@ async function run() {
       const query = { _id: ObjectId(id) };
       const tour = await travelCollection.findOne(query);
       res.send(tour);
+    });
+
+    app.get("/admin/:email", async (req, res) => {
+      const email = req.params.email;
+      const user = await userCollection.findOne({ email: email });
+      const isAdmin = user.role === "admin";
+      res.send({ admin: isAdmin });
+    });
+
+    app.put("/user/:email", async (req, res) => {
+      const email = req.params.email;
+      const user = req.body;
+      const filter = { email: email };
+      const options = { upsert: true };
+      const updateDoc = {
+        $set: user,
+      };
+      const result = await userCollection.updateOne(filter, updateDoc, options);
+      res.send(result);
     });
   } finally {
   }
