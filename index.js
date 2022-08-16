@@ -53,6 +53,37 @@ async function run() {
       const result = await userCollection.updateOne(filter, updateDoc, options);
       res.send(result);
     });
+
+    app.put("/profile/:email", async (req, res) => {
+      const email = req.params.email;
+      const user = req.body;
+      const filter = { email: email };
+      const options = { upsert: true };
+      const updateDoc = {
+        $set: user,
+      };
+      const result = await userCollection.updateOne(filter, updateDoc, options);
+      res.send(result);
+    });
+
+    app.get("/profile/:email", async (req, res) => {
+      const email = req.params.email;
+      const user = await userCollection.findOne({ email: email });
+      res.send(user);
+    });
+
+    app.post("/travel", async (req, res) => {
+      const booking = req.body;
+      const result = await travelCollection.insertOne(booking);
+      res.send(result);
+    });
+
+    app.delete("/travel/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const result = await travelCollection.deleteOne(query);
+      res.send(result);
+    });
   } finally {
   }
 }
